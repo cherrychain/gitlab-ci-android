@@ -1,12 +1,17 @@
-FROM ubuntu:20.04
-MAINTAINER Jan Grewe <jan@faked.org>
+FROM ubuntu:23.10
+MAINTAINER CherryChain <team@cherrychain.it>
 
-ENV VERSION_TOOLS "8512546"
+ENV VERSION_TOOLS "10406996"
 
 ENV ANDROID_SDK_ROOT "/sdk"
+ENV PATH "$PATH:${ANDROID_CMDLINE_TOOLS_BIN}/:${ANDROID_HOME}/emulator/:${ANDROID_HOME}/platform-tools/:${ANDROID_HOME}/build-tools/33.0.1/"
+
 # Keep alias for compatibility
 ENV ANDROID_HOME "${ANDROID_SDK_ROOT}"
 ENV PATH "$PATH:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/platform-tools"
+
+ARG JDK_VERSION=20
+ARG ANDROID_CMDLINE_TOOLS_BIN="${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin"
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get -qq update \
@@ -15,7 +20,7 @@ RUN apt-get -qq update \
       curl \
       git-core \
       html2text \
-      openjdk-11-jdk \
+      openjdk-${JDK_VERSION}-jdk \
       libc6-i386 \
       lib32stdc++6 \
       lib32gcc1 \
@@ -36,14 +41,11 @@ RUN curl -s https://dl.google.com/android/repository/commandlinetools-linux-${VE
  && mv ${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools ${ANDROID_SDK_ROOT}/cmdline-tools/latest \
  && rm -v /cmdline-tools.zip
 
-RUN mkdir -p $ANDROID_SDK_ROOT/licenses/ \
- && echo "8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb78af6dfcb131a6481e\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > $ANDROID_SDK_ROOT/licenses/android-sdk-license \
- && echo "84831b9409646a918e30573bab4c9c91346d8abd\n504667f4c0de7af1a06de9f4b1727b84351f2910" > $ANDROID_SDK_ROOT/licenses/android-sdk-preview-license \
- && yes | sdkmanager --licenses >/dev/null
+RUN yes | ${ANDROID_CMDLINE_TOOLS_BIN}/sdkmanager --licenses
 
 RUN mkdir -p /root/.android \
  && touch /root/.android/repositories.cfg \
- && sdkmanager --update
+ && sdkmanager --verbose --update
 
 ADD packages.txt /sdk
-RUN sdkmanager --package_file=/sdk/packages.txt
+RUN sdkmanager --verbose --package_file=/sdk/packages.txt
