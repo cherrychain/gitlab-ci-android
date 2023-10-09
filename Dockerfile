@@ -11,7 +11,7 @@ ENV ANDROID_HOME "${ANDROID_SDK_ROOT}"
 ENV PATH "$PATH:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/platform-tools"
 
 ARG JDK_VERSION=20
-ARG ANDROID_CMDLINE_TOOLS_BIN="${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin"
+ARG ANDROID_CMDLINE_TOOLS_BIN="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin"
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get -qq update \
@@ -23,7 +23,7 @@ RUN apt-get -qq update \
       openjdk-${JDK_VERSION}-jdk \
       libc6-i386 \
       lib32stdc++6 \
-      lib32gcc1 \
+      libtool \
       lib32ncurses6 \
       lib32z1 \
       unzip \
